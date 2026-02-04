@@ -133,7 +133,6 @@ test('accessing elements checkbox', async ({ page }) => {
   await page.locator('span.rct-title', { hasText: 'Excel File.doc' }).click();
   await page.locator('//*[@id="tree-node"]/ol/li/ol/li[3]/span/button').click();
 
-
 });
 
 test('accessing elements radio button', async ({ page }) => {
