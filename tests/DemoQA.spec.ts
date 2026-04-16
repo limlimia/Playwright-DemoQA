@@ -4,7 +4,7 @@ test('accessing elements textbox', async ({ page }) => {
   await page.goto('https://demoqa.com/');
 
   // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/DEMOQA/);
+  await expect(page).toHaveTitle(/demosite/);
 
   await page.setViewportSize({
     width: 1670,  
@@ -41,7 +41,7 @@ test('accessing elements checkbox', async ({ page }) => {
   await page.goto('https://demoqa.com/');
 
   // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/DEMOQA/);
+  await expect(page).toHaveTitle(/demosite/);
 
   await page.setViewportSize({
     width: 1670,  
@@ -139,7 +139,7 @@ test('accessing elements radio button', async ({ page }) => {
   await page.goto('https://demoqa.com/');
 
   // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/DEMOQA/);
+  await expect(page).toHaveTitle(/demosite/);
 
   await page.setViewportSize({
     width: 1670,  
@@ -149,5 +149,180 @@ test('accessing elements radio button', async ({ page }) => {
   await page.getByText('Elements').click();
 
   await page.getByText('Radio Button').click();
+
+  await page.getByText('Yes').click();
+  await page.getByText('You have selected Yes').isVisible();
+
+  await page.getByText('Impressive').click();
+  await page.getByText('You have selected Impressive').isVisible();
+
+});
+
+test('accessing elements web tables', async ({ page }) => {
+
+await page.goto('https://demoqa.com/');
+
+// Expect a title "to contain" a substring.
+await expect(page).toHaveTitle(/demosite/);
+
+await page.setViewportSize({
+  width: 1670,  
+  height: 811,
+});
+
+await page.getByText('Elements').click();
+
+await page.getByText('Web Tables').click();
+
+//Add data
+
+const firstname = 'Limia';
+const lastname = 'Plawright';
+const email2 = 'lim@test.com';
+const age = '25';
+const salary = '1000000';
+const department = 'Quality Assurance';
+
+const buttonAdd = page.locator('#addNewRecordButton');
+await buttonAdd.click();
+
+// await page.getByText('Add').click();
+
+await page.getByPlaceholder('First Name').fill(firstname);
+await page.getByPlaceholder('Last Name').fill(lastname);
+await page.getByPlaceholder('name@example.com').fill(email2);
+await page.getByPlaceholder('Age').fill(age);
+await page.getByPlaceholder('Salary').fill(salary);
+await page.getByPlaceholder('Department').fill(department);
+
+await page.getByText('Submit').click();
+
+await page.getByText(firstname).isVisible();
+await page.getByText(lastname).isVisible();
+await page.getByText(email2).isVisible();
+await page.getByText(age).isVisible();
+await page.getByText(salary).isVisible();
+await page.getByText(department).isVisible();
+
+//Edit data
+
+await page.locator('//*[@id="edit-record-4"]').click();
+
+const firstname_edit = 'Lim';
+const lastname_edit = 'Testing';
+const email2_edit = 'lim@testing.com';
+const age_edit = '24';
+const salary_edit = '10000';
+const department_edit = 'Testing playwright';
+
+await page.locator('//*[@id="firstName"]').fill(firstname_edit);
+await page.locator('//*[@id="lastName"]').fill(lastname_edit);
+await page.locator('//*[@id="userEmail"]').fill(email2_edit);
+await page.locator('//*[@id="age"]').fill(age_edit);
+await page.locator('//*[@id="salary"]').fill(salary_edit);
+await page.locator('//*[@id="department"]').fill(department_edit);
+
+await page.getByText('Submit').click();
+
+//Delete data
+
+await page.locator('//*[@id="delete-record-4"]').click();
+
+const deletetext = page.getByText(firstname_edit);
+
+if(await deletetext.isHidden()){
+  console.log("Successfully deleted");
+}else{
+  console.log("Delete is failed");
+}
+
+//Search Data
+
+const search_keyword = 'Alden';
+const searchKeyword = page.getByText(search_keyword, { exact: true });
+
+await page.locator('//*[@id="searchBox"]').fill(search_keyword);
+
+if(await searchKeyword.isVisible()){
+  console.log("Data is found");
+}else{
+  console.log("Data not found");
+}
+
+});
+
+test('accessing elements buttons', async ({ page }) => {
+
+await page.goto('https://demoqa.com/');
+
+// Expect a title "to contain" a substring.
+await expect(page).toHaveTitle(/demosite/);
+
+await page.setViewportSize({
+  width: 1670,  
+  height: 811,
+});
+
+await page.getByText('Elements').click();
+
+await page.getByText('Buttons').click();
+
+//Click buttons
+
+const doubleclick_text = 'You have done a double click';
+const rightclick_text = 'You have done a right click';
+const clickme_text = 'You have done a dynamic click';
+
+await page.locator('//*[@id="doubleClickBtn"]').dblclick();
+await page.locator('//*[@id="rightClickBtn"]').click({ button: 'right' });
+await page.getByText('Click Me', { exact: true }).click();
+
+if(await page.getByText(doubleclick_text).isVisible()){
+  console.log("Double click done");
+}else if (await page.getByText(rightclick_text).isVisible()){
+  console.log("Right click done");
+}else if (await page.getByText(clickme_text).isVisible()){
+  console.log("Click me done");
+}else{
+  console.log("No button clicked");
+}
+
+});
+
+test('accessing elements links', async ({ page }) => {
+
+await page.goto('https://demoqa.com/');
+
+// Expect a title "to contain" a substring.
+await expect(page).toHaveTitle(/demosite/);
+
+await page.setViewportSize({
+  width: 1670,  
+  height: 811,
+});
+
+await page.getByText('Elements').click();
+
+await page.getByText('Links').click();
+
+//Click buttons -- to be continue
+
+const doubleclick_text = 'You have done a double click';
+const rightclick_text = 'You have done a right click';
+const clickme_text = 'You have done a dynamic click';
+
+await page.locator('//*[@id="doubleClickBtn"]').dblclick();
+await page.locator('//*[@id="rightClickBtn"]').click({ button: 'right' });
+await page.getByText('Click Me', { exact: true }).click();
+
+if(await page.getByText(doubleclick_text).isVisible()){
+  console.log("Double click done");
+}else if (await page.getByText(rightclick_text).isVisible()){
+  console.log("Right click done");
+}else if (await page.getByText(clickme_text).isVisible()){
+  console.log("Click me done");
+}else{
+  console.log("No button clicked");
+}
 
 });
