@@ -1,4 +1,5 @@
 import { test, expect, selectors } from '@playwright/test';
+import fs from 'fs';
 
 test('accessing elements textbox', async ({ page }) => {
   await page.goto('https://demoqa.com/');
@@ -289,7 +290,10 @@ if(await page.getByText(doubleclick_text).isVisible()){
 
 });
 
-test('accessing elements links', async ({ page }) => {
+test('accessing elements links', async ({ browser }) => {
+
+const context = await browser.newContext();
+const page = await context.newPage();
 
 await page.goto('https://demoqa.com/');
 
@@ -303,26 +307,165 @@ await page.setViewportSize({
 
 await page.getByText('Elements').click();
 
-await page.getByText('Links').click();
+await page.getByText('Links', { exact: true }).click();
 
-//Click buttons -- to be continue
+const created_text = 'Link has responded with staus 201 and status text Created';
+const nocontent_text = 'Link has responded with staus 204 and status text No Content';
+const moved_text = 'Link has responded with staus 301 and status text Moved Permanently';
+const badreq_text = 'Link has responded with staus 400 and status text Bad Request';
+const unauth_text = 'Link has responded with staus 401 and status text Unauthorized';
+const forbidden_text = 'Link has responded with staus 403 and status text Forbidden';
+const notfound_text = 'Link has responded with staus 404 and status text Not Found';
 
-const doubleclick_text = 'You have done a double click';
-const rightclick_text = 'You have done a right click';
-const clickme_text = 'You have done a dynamic click';
+await page.locator('//*[@id="simpleLink"]').click();
 
-await page.locator('//*[@id="doubleClickBtn"]').dblclick();
-await page.locator('//*[@id="rightClickBtn"]').click({ button: 'right' });
-await page.getByText('Click Me', { exact: true }).click();
+if(await page.goto('https://demoqa.com/')){
+  console.log("Home link has been clicked");
+  await page.bringToFront();
 
-if(await page.getByText(doubleclick_text).isVisible()){
-  console.log("Double click done");
-}else if (await page.getByText(rightclick_text).isVisible()){
-  console.log("Right click done");
-}else if (await page.getByText(clickme_text).isVisible()){
-  console.log("Click me done");
+  await page.getByText('Elements').click();
+  await page.getByText('Links', { exact: true }).click();
 }else{
-  console.log("No button clicked");
+  console.log("Home link is not clicked");
 }
+
+await page.locator('//*[@id="dynamicLink"]').click();
+
+if(await page.goto('https://demoqa.com/')){
+  console.log("Home link has been clicked");
+  await page.bringToFront();
+
+  await page.getByText('Elements').click();
+  await page.getByText('Links', { exact: true }).click();
+}else{
+  console.log("Home link is not clicked");
+}
+
+await page.getByText('Created', { exact: true }).click();
+await page.getByText('No Content', { exact: true }).click();
+await page.getByText('Moved', { exact: true }).click();
+await page.getByText('Bad Request', { exact: true }).click();
+await page.getByText('Unauthorized', { exact: true }).click();
+await page.getByText('Forbidden', { exact: true }).click();
+await page.getByText('Not Found', { exact: true }).click();
+
+if(await page.getByText(created_text).isVisible()){
+  console.log("Created link click done");
+}else if (await page.getByText(nocontent_text).isVisible()){
+  console.log("No Content link click done");
+}else if (await page.getByText(moved_text).isVisible()){
+  console.log("Moved link click done");
+}else if (await page.getByText(badreq_text).isVisible()){
+  console.log("Bad Request link click done");
+}else if (await page.getByText(unauth_text).isVisible()){
+  console.log("Unauthorized link click done");
+}else if (await page.getByText(forbidden_text).isVisible()){
+  console.log("Forbidden link click done");
+}else if (await page.getByText(notfound_text).isVisible()){
+  console.log("Not Found link click done");
+}else{
+  console.log("No link clicked");
+}
+
+});
+
+test('accessing elements broken links - images', async ({ page }) => {
+
+await page.goto('https://demoqa.com/');
+
+// Expect a title "to contain" a substring.
+await expect(page).toHaveTitle(/demosite/);
+
+await page.setViewportSize({
+  width: 1670,  
+  height: 811,
+});
+
+await page.getByText('Elements').click();
+
+await page.getByText('Broken Links - Images').click();
+
+if(await page.getByText('Valid image').isVisible()){
+  console.log("Valid image is there and broken");
+}else if (await page.getByText('Broken image').isVisible()){
+  console.log("Broken image is there and broken");
+}
+
+await page.getByText('Click Here for Valid Link').click()
+if(await page.goto('https://demoqa.com/')){
+  console.log("Successfully click on the valid link");
+  await page.getByText('Elements').click();
+  await page.getByText('Broken Links - Images').click();
+}else{
+  console.log("Valid link is not valid");
+}
+
+await page.getByText('Click Here for Broken Link').click();
+if(await page.goto('https://the-internet.herokuapp.com/status_codes/500')){
+  console.log("Successfully click on the broken link");
+}else{
+  console.log("Broken link is not valid");
+}
+
+});
+
+test('accessing elements upload and download', async ({ page }) => {
+
+await page.goto('https://demoqa.com/');
+
+// Expect a title "to contain" a substring.
+await expect(page).toHaveTitle(/demosite/);
+
+await page.setViewportSize({
+  width: 1670,  
+  height: 811,
+});
+
+await page.getByText('Elements').click();
+
+await page.getByText('Upload and Download').click();
+
+if (!fs.existsSync('downloads')) {
+  fs.mkdirSync('downloads');
+}
+
+const [ download ] = await Promise.all([
+  page.waitForEvent('download'),
+  page.locator('#downloadButton').click()
+]);
+
+// Save the file to a path, XXX = the user name
+const filePath = 'C:/Users/XXX/Downloads/downloadFile_testing.jpg';
+await download.saveAs(filePath);
+console.log('File is successfully downloaded');
+
+await page.setInputFiles('#uploadFile', filePath);
+
+// Verify upload result
+await expect(page.locator('#uploadedFilePath')).toContainText('downloadFile_testing.jpg');
+console.log('File uploaded successfully');
+
+});
+
+test('accessing elements dynamic properties', async ({ page }) => {
+
+  await page.goto('https://demoqa.com/');
+
+// Expect a title "to contain" a substring.
+await expect(page).toHaveTitle(/demosite/);
+
+await page.setViewportSize({
+  width: 1670,  
+  height: 811,
+});
+
+await page.getByText('Elements').click();
+
+await page.getByText('Dynamic Properties').click();
+
+const button = page.locator('#colorChange');
+
+await page.locator('#visibleAfter').waitFor({ state: 'visible' });
+await expect(button).toHaveCSS('color', 'rgb(220, 53, 69)');
 
 });
